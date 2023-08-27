@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- cp this xml to /root/.docker/agent/guard.xml -->
+<CobeAgent>
+	<ProcessList Enable="True">
+		<Process Name="ai_service" Enable="true">
+			<!--'WorkPath' support environment variable-->
+		        <WorkPath>/root/.docker/</WorkPath>
+                        <StartCmd>sh start_up.sh</StartCmd>
+			<!-- the min period is 30s-->
+			<CheckPeriod>30</CheckPeriod>
+			<CheckRules>
+				<Rule>sh check_service.sh  </Rule>
+			</CheckRules>
+			<CleanCmd> </CleanCmd>
+		</Process>
+		<Process Name="nginx" Enable="true">
+			<!--'WorkPath' support environment variable-->
+		        <WorkPath>/usr/local/nginx/sbin</WorkPath>
+                        <StartCmd>killall nginx ; ./nginx</StartCmd>
+			<!-- the min period is 30s-->
+			<CheckPeriod>30</CheckPeriod>
+			<CheckRules>
+				<Rule>ps -ef --width=4196 | grep -v grep | grep 'nginx: master'</Rule>
+			</CheckRules>
+			<CleanCmd> </CleanCmd>
+		</Process>
+		<Process Name="avatar_regist" Enable="true">
+			<!--'WorkPath' support environment variable-->
+		        <WorkPath>/root/.docker/</WorkPath>
+                        <StartCmd>sh avatar_reg.sh</StartCmd>
+			<!-- the min period is 30s-->
+			<CheckPeriod>90</CheckPeriod>
+			<CheckRules>
+				<Rule>ps -ef --width=4196 | grep -v grep | grep 'avatar_reg'</Rule>
+			</CheckRules>
+			<CleanCmd> </CleanCmd>
+		</Process>
+	</ProcessList>
+
+	<!-- Don't modify FetchInfo except 'FetchCmd'-->
+	<FetchInfo Enable="true">
+		<Period>30</Period>
+		<!-- 'Address','Url','AppendUrl' support environment variable-->
+		<Address>${HOST_IP}</Address>
+		<Port>${AGENT_PORT}</Port>
+		<Action></Action>
+		<Url>/api/v1/app/report</Url>
+		<UseAppendUrl>true</UseAppendUrl>
+		<AppendUrl>${POD_OWNER}/${POD_NAMESPACE}/${APP_NAME}/${APPCONFIG_NAME}/${APPCONFIG_VERSION}/${POD_TYPE}/${POD_NAME}/${CONTAINER_NAME}</AppendUrl>
+		<FetchCmd>timeout -s 9 20 sh /root/.docker/fetch_info.sh</FetchCmd>
+	</FetchInfo>
+</CobeAgent>

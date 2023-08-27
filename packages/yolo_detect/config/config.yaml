@@ -1,0 +1,50 @@
+# 文件基础配置
+device_id: cpu
+cpu_num: 16
+conf: 0.4
+iou: 0.65
+server_port: 8081
+
+# 向外暴露的url
+url: /ai_service/multimedia/yolo/detect
+batch_url: /ai_service/multimedia/yolo/detects
+
+log_path: ./log/yolo_detect.log
+# 模型路径
+model_path: /home/models/nap_detect_v1.0_41c18d829669e6fd8216705e3af3f5e7.pt
+
+# 动态库依赖包路径
+library:
+  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer.so
+  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer_builder_resource.so.8.6.1
+  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer_plugin.so
+  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvonnxparser.so
+
+# 手动配置的参数
+param_dict:
+    gpuId: 0
+    batchSize: 1
+    scoreThresh: 0.5
+    iouThresh: 0.5
+    classNums: 80
+
+    inputHeight: 640
+    inputWidth: 640
+
+    onnxPath: /mnt/e/GitHub/service/models/yolov5s.onnx
+    enginePath: /mnt/e/GitHub/service/models/yolov5s_NVIDIAGeForceRTX4090_FP32.engine
+
+    inputName: images
+    outputName: output
+
+# decode type can be "cpu"==0 or "gpu"==1
+decode_type: 0
+# 0:GRAY,1:BGR
+cpu_decode_output_img_type: 1
+gpu_decode_thread_num: 1
+gpu_decode_ouput_img_type: 1
+max_size: 1920 * 1080 * 3
+
+#[info_collector]
+#post_url=
+#send_info_time_interval=
