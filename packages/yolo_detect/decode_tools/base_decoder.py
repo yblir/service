@@ -11,7 +11,7 @@ import six
 
 import queue as Queue
 from threading import Thread
-from ..utils.exceptions import AILabException, AILabError, AILabException, ERROR_IMAGE_DECODE
+from ..util_func.exceptions import AILabException, AILabError, AILabException, ERROR_IMAGE_DECODE
 from ..transfer import logger
 
 def unpackage_request(raw_data):

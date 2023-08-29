@@ -1,27 +1,17 @@
 # -*- coding: utf-8 -*-
-
-"""
-*              Fenghuo Confidential Proprietary
-*            (c)NanJing FiberHome Security Company
-*
-*   @file    collector.py
-*   @brief   收集微服务每段时间处理的数据，并发送到收集服务器。
-*   @author  Qian Kun
-*   @date    2022/8/19/019 17:25
-*   @version
-*   Revision History:
-*   Author    Date(YYYY-MM-DD)      Description of Changes
-
-"""
+# @Time    : 2023/4/20 21:23
+# @Author  : yblir
+# @File    : collector.py
+# explain  :
+# ================================================================================
 import os
 import uuid
 import json
-import logging
 import requests
 import time
 import threading
-from .utils import config_dict
-from .exceptions import AILabException, AILabError
+from ..transfer import config, logger
+from ..util_func.exceptions import AILabException, AILabError
 
 # 异常处理
 ailab_error = AILabError()
@@ -38,10 +28,10 @@ class Collector(object):
         self.post_url = None
         try:
             # 读取配置文件中对应的参数
-            params = config_dict(config_path)
-            self.server_port = params['base']['server_port']
-            self.post_url = params['info_collector']['post_url']
-            self.send_info_time_interval = int(params['info_collector']['send_info_time_interval'])
+            params = config(config_path)
+            self.server_port = config['server_port']
+            self.post_url = config['post_url']
+            self.send_info_time_interval = int(config['send_info_time_interval'])
         except Exception as _:
             assert AILabException(ailab_error.ERROR_COLLECTOR_INIT_FAILD)
 
@@ -66,8 +56,7 @@ class Collector(object):
             host_process = threading.Thread(target=self.host, args=())
             host_process.start()
         else:
-            logging.info("cannot find the post_url in app.yaml, cannot use collector.")
-            print("cannot find the post_url in app.yaml, cannot use collector.")
+            logger.info("cannot find the post_url in app.yaml, cannot use collector.")
 
     def post(self, post_url, metrics):
 
@@ -80,7 +69,7 @@ class Collector(object):
             "podName"   : self.pod_name,
             "metrics"   : metrics
         }
-        logging.debug("post_data={}, post_url={}".format(post_data, self.post_url))
+        logger.debug("post_data={}, post_url={}".format(post_data, self.post_url))
         # print("post_data={}, post_url={}".format(post_data, self.post_url))
         try:
             _headers = {'Content-Type': 'application/json;charset=utf8'}
@@ -88,16 +77,16 @@ class Collector(object):
             self.last_status = True
 
             data = response.json()
-            logging.debug("data={}".format(data))
+            logger.debug("data={}".format(data))
             # print("data={}".format(data))
             if int(data['status']) != 200:
                 self.last_response_status = False
-                logging.error("cannot post info to collector server. response info = {}".format(data))
+                logger.error("cannot post info to collector server. response info = {}".format(data))
             else:
                 self.last_response_status = True
         except Exception as e:
             if self.last_status:
-                logging.error("something was wrong when send post, error info={}".format(e))
+                logger.error("something was wrong when send post, error info={}".format(e))
             self.last_status = False
             self.last_response_status = False
 

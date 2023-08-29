@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/13 8:53
 # @Author  : yblir
-# @File    : example.py
+# @File    : model_infer.py
 # explain  : 
 # =======================================================
 import math

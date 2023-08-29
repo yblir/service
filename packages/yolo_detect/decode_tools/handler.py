@@ -6,7 +6,7 @@ import time
 import uuid
 import tornado.web
 from tornado import httputil
-from ..utils.exceptions import AILabException, AILabError
+from ..util_func.exceptions import AILabException, AILabError
 from .predictor import Predictor
 from .collector import Collector
 from typing import Any, Dict
@@ -96,7 +96,7 @@ class APIHandler(tornado.web.RequestHandler):
                 self.parser_request_id(self.request)
 
                 # 检查输入数据的格式是否符合schema的规定
-                self.predictor.check(request_data)
+                self.predictor.check_input(request_data)
 
                 # 检测是否为二进制方式输入，若为二进制输入，则进行解析
                 self.check_byte_request(request_data)
@@ -122,7 +122,7 @@ class APIHandler(tornado.web.RequestHandler):
                     try:
                         self.predictor.check_out(ret_obj)
                     except Exception as _:
-                        logging.debug("cannot check output format from self.predictor.check_out")
+                        logging.debug("cannot check_input output format from self.predictor.check_out")
 
                     logging.info("TotalNum:{}, TargetNum:{}, DecodeFailNum:{}, OtherFailNum:{}"
                                  .format(total_data_num, target_num, decode_fail_num, other_fail_num))

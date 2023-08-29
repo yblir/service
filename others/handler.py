@@ -172,7 +172,7 @@ class APIHandler(tornado.web.RequestHandler):
             total_images = 0
             try:
                 request_data['noid'] = noid
-                self.predictor.check(request_data)
+                self.predictor.check_input(request_data)
 
                 if 'image' in request_data.keys():
                     total_images = 1  # 单张图片接口

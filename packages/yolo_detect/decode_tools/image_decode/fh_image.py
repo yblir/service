@@ -11,7 +11,7 @@ import base64
 import logging
 
 from ..base_decoder import BaseDecoder, BaseDecoderMultiThread
-from ..exceptions import AILabException, AILabError
+from .exceptions import AILabException, AILabError
 
 # 异常处理
 ailab_error = AILabError()

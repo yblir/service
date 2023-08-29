@@ -3,7 +3,7 @@
 
 function is_process_on()
 {
-  # aiserver check
+  # aiserver check_input
   sign=1
   for k in $( seq 1 ${INSTANCE_NUM} )
   do
@@ -23,7 +23,7 @@ function is_process_on()
   else
     echo "aiservice:stopped"
   fi
-  # nginx service check
+  # nginx service check_input
   ps -few | grep nginx | grep master -q;
   if [ $? != 1  ]
   then
