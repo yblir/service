@@ -6,9 +6,9 @@ import time
 import uuid
 import tornado.web
 from tornado import httputil
-from ..util_func.exceptions import AILabException, AILabError
+from packages.yolo_detect.util_func.exceptions import AILabException, AILabError
 from .predictor import Predictor
-from .collector import Collector
+from packages.yolo_detect.decode_tools.collector import Collector
 from typing import Any, Dict
 
 collect = Collector()

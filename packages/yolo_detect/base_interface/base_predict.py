@@ -83,26 +83,6 @@ class Predictor(metaclass=ABCMeta):
                 logger.error(e)
                 raise AILabException(ailab_error.ERROR_PARAMETER)
 
-    # def check_out(self, output_data):
-    #     """
-    #     对请求数据进行格式校验,如果没有指定校验文件,则不进行校验
-    #     :param output_data: 输出数据
-    #     """
-    #     try:
-    #         if self.json_schema_output:
-    #             validate(instance=output_data, schema=self.json_schema_output)
-    #             valid_params = self.json_schema_output["properties"].keys()
-    #             for k in output_data.keys():
-    #                 if k not in valid_params:
-    #                     assert False, "Undefined Parameters Found !"
-    #     except ValidationError as v_e:
-    #         logger.info("validator error:{}".format(v_e.message))
-    #         raise AILabException(ailab_error.ERROR_CHECK_OUTPUT_FORMAT)
-    #     except Exception as e:
-    #         logger.error(e)
-    #         raise AILabException(ailab_error.ERROR_CHECK_OUTPUT_FORMAT)
-
-    # todo 在C++中已经写好的pre,post算法, 还有必要用python再写一遍吗?
     def pre_process(self, request):
         """
         前处理,需要根据不同算法进行实现

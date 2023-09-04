@@ -8,11 +8,11 @@ import os
 # import logging.config
 from transfer import config, logger
 # from decode_tools.util_func import config_dict
-from decode_tools.service import Service
-from modules.model_infer import ImageInferModule, AudioInferModule, VideoInferModule
+from packages.yolo_detect.base_interface.service import Service
+from modules.model_infer import ImageInferModule
 from modules.predict import YoloPredictor
 # 解码模块：图片微服务
-from decode_tools.image_decode.fh_image import ImageDecodeCPU, ImageDecodeCPUThread, ImageDecodeGPU
+from decode_tools.image_decode.fh_image import ImageDecodeCPU
 
 # 解码模块：音频微服务
 # from decode_tools.audio_decode.fh_audio import AudioDecode, AudioDecodeThread
@@ -26,10 +26,9 @@ config_path = os.path.join(BASE_DIR, 'config', 'app.yaml')
 if __name__ == "__main__":
     # # data_type_keyword为请求体中数据的关键字，用于解析例如：images/image/video/audioData等..
     data_type_keyword = {"single": "image", "batch": "images"}  # 图片微服务关键字
-    """
-    data_type_keyword = {"single": "audio", "batch": "audios"}  # 音频微服务关键字
-    data_type_keyword = {"single": "video", "batch": "videos"}  # 视频微服务关键字
-    """
+
+    # data_type_keyword = {"single": "audio", "batch": "audios"}  # 音频微服务关键字
+    # data_type_keyword = {"single": "video", "batch": "videos"}  # 视频微服务关键字
 
     service = Service(data_type_keyword)
     # 初始化图片解码类

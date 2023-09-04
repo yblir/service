@@ -14,6 +14,7 @@ from threading import Thread
 from ..util_func.exceptions import AILabException, AILabError, AILabException, ERROR_IMAGE_DECODE
 from ..transfer import logger
 
+
 def unpackage_request(raw_data):
     """
     将base64数据或二进制数据解成原生数据，为解码做准备
