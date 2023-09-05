@@ -28,7 +28,7 @@ class AILabException(Exception):
 
 
 # 异常码
-class AILabError:
+class ErrorCode:
     # 未知错误
     ERROR_UNKNOWN = {"status": "-1", "msg": "ERROR_UNKNOWN"}
     # 错误参数

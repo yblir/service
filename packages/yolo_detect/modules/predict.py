@@ -12,11 +12,11 @@ import base64
 import json
 
 from typing import Dict
-from ..decode_tools.predictor import Predictor
-from ..decode_tools.exceptions import AILabException, AILabError
+from ..base_interface.base_predict import Predictor
+from ..utils.exceptions import AILabException, ErrorCode
 
 # 异常处理
-ailab_error = AILabError()
+error_code = ErrorCode()
 
 
 # todo 修改Demo类为自己模型的推理过程
@@ -49,6 +49,7 @@ class YoloPredictor(Predictor):
         self.module_infer = module_infer
         self.decoder = decoder
         self.data_type_keyword = data_type_keyword
+        self.start_time = time.time()
 
         logging.info("init demo Predictor")
 
@@ -61,6 +62,9 @@ class YoloPredictor(Predictor):
         """
         解析请求体
         """
+        # 记录预处理开始时间, 在post_process中调用
+        self.start_time = time.time()
+
         raw_data_for_decode = None
         # 1、根据关键字，将数据从字典中读取出来
         keyword_single = self.data_type_keyword["keyword_single"]
@@ -69,9 +73,9 @@ class YoloPredictor(Predictor):
         if keyword_single in request:
             try:
                 if not isinstance(request["faceKeyPoint"][0], list):
-                    raise AILabException(ailab_error.ERROR_PARAMETER)
+                    raise AILabException(error_code.ERROR_PARAMETER)
             except Exception:
-                raise AILabException(ailab_error.ERROR_PARAMETER)
+                raise AILabException(error_code.ERROR_PARAMETER)
             raw_data_for_decode = request[keyword_single]
         # batch请求需将list里面的字典数据提取出来
         if keyword_batch in request:
@@ -79,13 +83,13 @@ class YoloPredictor(Predictor):
             for item in request[keyword_batch]:
                 if "imageData" not in item.keys():
                     logging.error("no key imageData")
-                    raise AILabException(ailab_error.ERROR_PARAMETER)
+                    raise AILabException(error_code.ERROR_PARAMETER)
                 raw_data_for_decode.append(item["imageData"])
 
         if not raw_data_for_decode:
             # 若请求体中无关键字，则前处理错误
-            logging.error(ailab_error.ERROR_PARAMETER)
-            raise AILabException(ailab_error.ERROR_PARAMETER)
+            logging.error(error_code.ERROR_PARAMETER)
+            raise AILabException(error_code.ERROR_PARAMETER)
 
         # 2.解码操作
         # 解码后,不论单张还是多batch,decode_imgs_dic都是字典,数字0,1,2,为键,键为nd.array格式图片矩阵
@@ -99,29 +103,29 @@ class YoloPredictor(Predictor):
         将结果打包成接口文档规定的格式，将处理后的结果更新至ret_obj输出
         """
         # 解码相关信息
-        decode_fail = self.decode_fail
+        # decode_fail = self.decode_fail
         # 推理相关信息[[{...},{},...]]
-        predict_success = self.predict_success
-        predict_fail = self.predict_fail
+        # predict_success = self.predict_success
+        # predict_fail = self.predict_fail
 
         dict_sort_fail = {}  # 用于存放一批数据中返回失败的数据信息,类型是字典
         dict_sort_success = {}
 
-        # 对解码失败的数据返回对应的错误状态
-        for i in decode_fail.keys():
-            # 对解码错误的数据结果设为空列表
-            image_id = self.request_data[self.data_type_keyword]["keyword_batch"][i]["imageID"]
-            temp_dict = ailab_error.ERROR_ERROR_IMAGE_DECODE
-            temp_dict["imageID"] = image_id
-            dict_sort_fail[i] = temp_dict
-
-        # 对推理失败的数据返回对应的错误状态
-        for i in predict_fail.keys():
-            # 对推理错误的数据结果设为空列表
-            image_id = self.request_data[self.data_type_keyword]["keyword_batch"][i]["imageID"]
-            temp_dict = predict_fail[i]
-            temp_dict["imageID"] = image_id
-            dict_sort_fail[i] = temp_dict
+        # # 对解码失败的数据返回对应的错误状态
+        # for i in decode_fail.keys():
+        #     # 对解码错误的数据结果设为空列表
+        #     image_id = self.request_data[self.data_type_keyword]["keyword_batch"][i]["imageID"]
+        #     temp_dict = error_code.ERROR_ERROR_IMAGE_DECODE
+        #     temp_dict["imageID"] = image_id
+        #     dict_sort_fail[i] = temp_dict
+        #
+        # # 对推理失败的数据返回对应的错误状态
+        # for i in predict_fail.keys():
+        #     # 对推理错误的数据结果设为空列表
+        #     image_id = self.request_data[self.data_type_keyword]["keyword_batch"][i]["imageID"]
+        #     temp_dict = predict_fail[i]
+        #     temp_dict["imageID"] = image_id
+        #     dict_sort_fail[i] = temp_dict
 
         # 对推理成功的数据返回对应的推理结果
         target_num = 0  # 用于记录目标数据
@@ -141,7 +145,7 @@ class YoloPredictor(Predictor):
         ret_obj['faceObjectRows'] = ret_info
 
         # 计时
-        time_ms = time.time() - self.start_time
+        # time_ms = time.time() - self.start_time
         # 获取noid
         try:
             # 发送请求获得的数据
@@ -154,8 +158,8 @@ class YoloPredictor(Predictor):
             noid = str(uuid.uuid1())
 
         ret_obj["noid"] = noid
-        ret_obj["costTime"] = int(time_ms * 1000)
-        ret_obj["statusCode"] = "0"
+        ret_obj["cost_time"] = int((time.time() - self.start_time) * 1000)
+        ret_obj["status_code"] = "0"
         ret_obj["msg"] = "SUCCESS"
 
         return target_num

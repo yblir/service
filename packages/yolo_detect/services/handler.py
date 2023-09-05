@@ -3,17 +3,15 @@ import six
 import logging
 import json
 import time
-import uuid
 import tornado.web
-from tornado import httputil
-from packages.yolo_detect.util_func.exceptions import AILabException, AILabError
+from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
 from .predictor import Predictor
-from packages.yolo_detect.decode_tools.collector import Collector
-from typing import Any, Dict
+from packages.yolo_detect.services.collector import Collector
+from typing import Dict
 
 collect = Collector()
 # 异常处理
-ailab_error = AILabError()
+ailab_error = ErrorCode()
 
 
 class ReadyHandler(tornado.web.RequestHandler):

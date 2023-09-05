@@ -7,8 +7,8 @@
 import os
 # import logging.config
 from transfer import config, logger
-# from decode_tools.util_func import config_dict
-from packages.yolo_detect.base_interface.service import Service
+# from decode_tools.utils import config_dict
+from packages.yolo_detect.services.service import Service
 from modules.model_infer import ImageInferModule
 from modules.predict import YoloPredictor
 # 解码模块：图片微服务

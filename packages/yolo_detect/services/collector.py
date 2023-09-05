@@ -10,11 +10,11 @@ import json
 import requests
 import time
 import threading
-from ..transfer import config, logger
-from ..util_func.exceptions import AILabException, AILabError
+from packages.yolo_detect.transfer import config, logger
+from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
 
 # 异常处理
-ailab_error = AILabError()
+ailab_error = ErrorCode()
 
 collector_total_images = 0
 collector_target_num = 0

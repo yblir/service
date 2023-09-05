@@ -5,9 +5,10 @@
 # explain  : 
 # =======================================================
 import sys
+import numpy as np
 
 from ..transfer import config, logger
-from ..util_func.exceptions import AILabException, AILabError
+from ..utils.exceptions import AILabException, ErrorCode
 from ..base_interface.base_module_infer import BaseModuleInfer
 
 from ctypes import cdll
@@ -20,7 +21,7 @@ except:
     from ..models import deployment
 
 # 异常处理
-ailab_error = AILabError()
+ailab_error = ErrorCode()
 
 
 class ImageInferModule(BaseModuleInfer):
@@ -54,9 +55,23 @@ class ImageInferModule(BaseModuleInfer):
     def module_infer(self, input_data):
         # results = []
         # infer_fail = {}
-        rows = input_data["image"] if input_data["image"] else input_data["images"]
+        # rows = input_data["image"] if input_data["image"] else input_data["images"]
+        # 检查输入数据是否是图片矩阵
+        if not isinstance(input_data, np.ndarray):
+            # 检查是否是list
+            if isinstance(input_data, list):
+                for item in input_data:
+                    if not isinstance(item, np.ndarray):
+                        # 如果有元素不是图片矩阵,打印error,提前结束推理任务
+                        logger.error(f"input data of inferEngine is list, "
+                                     f"have element type is not np.ndarray, but is {type(item)}")
+            else:
+                # 如果也不是list,打印error,提前结束推理任务
+                logger.error(f"input data of inferEngine must be np.ndarray or list,but now is {type(input_data)}")
+                sys.exit()
+
         try:
-            future_infer_result = self.engine.inferEngine(rows)
+            future_infer_result = self.engine.inferEngine(input_data)
         except Exception as e:
             logger.error(f"engine infer fail: {e}")
             future_infer_result = None
@@ -65,7 +80,7 @@ class ImageInferModule(BaseModuleInfer):
 
     def module_release(self):
         self.engine.releaseEngine()
-        logger.success("release infer resources")
+        logger.success("release infer resources success")
 
     def age_to_agerange(self, age):
         """
@@ -144,11 +159,11 @@ class VideoInferModule(BaseModuleInfer):
                     if ret:
                         predict_success[k] = ["Predict Success"]
                     else:
-                        predict_fail[k] = AILabError.ERROR_INFER_ERROR
+                        predict_fail[k] = ErrorCode.ERROR_INFER_ERROR
                     break
                 else:
                     logger.error("cannot get frame from video, no.{}".format(k))
-                    predict_fail[k] = AILabError.ERROR_VIDEO_DECODE
+                    predict_fail[k] = ErrorCode.ERROR_VIDEO_DECODE
                     break
 
         return predict_success, predict_fail

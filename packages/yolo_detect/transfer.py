@@ -6,7 +6,7 @@
 # =======================================================
 import yaml
 
-from .util_func.logger_util import MyLogger
+from .utils.logger_modify import MyLogger
 
 with open("./config/config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)

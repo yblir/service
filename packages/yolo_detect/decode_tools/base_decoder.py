@@ -11,7 +11,7 @@ import six
 
 import queue as Queue
 from threading import Thread
-from ..util_func.exceptions import AILabException, AILabError, AILabException, ERROR_IMAGE_DECODE
+from ..utils.exceptions import AILabException, ErrorCode, AILabException, ERROR_IMAGE_DECODE
 from ..transfer import logger
 
 
@@ -26,13 +26,13 @@ def unpackage_request(raw_data):
     if isinstance(raw_data, bytes):
         return True, raw_data
     # base64数据
-    unzip_data = AILabError.ERROR_DECODE
+    unzip_data = ErrorCode.ERROR_DECODE
     try:
         if isinstance(raw_data, str):
             unzip_data = base64.b64decode(raw_data)
     except BaseException as _:
         logger.info("ERROR_DECODE_BASE64: decode base64 request error.")
-        return False, AILabError.ERROR_DECODE_BASE64
+        return False, ErrorCode.ERROR_DECODE_BASE64
 
     # 或添加自定义解包
     return True, unzip_data
@@ -46,7 +46,7 @@ class BaseDecoder(object):
     3. 规范图片,视频和音频等输入形态的接口，使得框架有较大的兼容性；
     """
 
-    def __init__(self, params, ailab_error=AILabError()):
+    def __init__(self, params, ailab_error=ErrorCode()):
         """
         解码模块的的始化
         :param: params 参数配置
@@ -129,7 +129,7 @@ class BaseDecoderMultiThread(object):
     1.使用多线程的方式进行解码，提升解码的效率；
     """
 
-    def __init__(self, thread_num=16, ailab_error=AILabError()):
+    def __init__(self, thread_num=16, ailab_error=ErrorCode()):
         """
         初始化
         param thread num:线程数

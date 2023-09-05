@@ -4,7 +4,7 @@
   "properties": {
           "noid": {"type": "string", "minLength": 1},
           "sysid": {"type": "string", "minLength": 1},
-          "images": {"type": "string",
+          "images": {"type": "array",
                     "items": {"type": "object",
                               "properties": {"image": {"type": "string", "minLength": 1}},
                               "required": ["image"],

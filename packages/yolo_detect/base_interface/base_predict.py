@@ -12,11 +12,11 @@ import time
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from abc import ABCMeta, abstractmethod
-from ..util_func.exceptions import AILabException, AILabError
+from ..utils.exceptions import AILabException, ErrorCode
 from ..transfer import config, logger
 
 # 异常处理
-ailab_error = AILabError()
+error_code = ErrorCode()
 
 
 class Predictor(metaclass=ABCMeta):
@@ -63,7 +63,7 @@ class Predictor(metaclass=ABCMeta):
         对请求数据进行格式校验。如果没有指定校验文件，则不进行校验
         Arguments:
             input_data {Dict} -- 请求数据
-
+        #
         """
         if self.json_schema:
             try:
@@ -75,13 +75,13 @@ class Predictor(metaclass=ABCMeta):
             except ValidationError as v_e:
                 if re.match(self.schema_pattern, v_e.message):
                     logger.error("input_data nums is {}, list len too large.".format(len(input_data['images'])))
-                    raise AILabException(ailab_error.ERROR_PARAMETER)
+                    raise AILabException(error_code.ERROR_PARAMETER)
                 else:
                     logger.info("validator error:{}".format(v_e.message))
-                    raise AILabException(ailab_error.ERROR_PARAMETER)
+                    raise AILabException(error_code.ERROR_PARAMETER)
             except Exception as e:
                 logger.error(e)
-                raise AILabException(ailab_error.ERROR_PARAMETER)
+                raise AILabException(error_code.ERROR_PARAMETER)
 
     def pre_process(self, request):
         """
@@ -101,54 +101,46 @@ class Predictor(metaclass=ABCMeta):
     # 所有推理流程公用predict方法
     def predict(self, request_data: Dict):
         """
-         接收请求体数据，并将结果通过字典类型数ret_obj
-         :param request data:
-         :return:微服务的返回信息(Dict)、请求总数(int)、目标数量(int)、解码失败数量(int)。推理失败数量(int)
+         接收请求体数据，解析,推理,后处理
+         :param request_data: dict
+         :return:微服务的返回信息(Dict)、请求总数(int)、推理正确数量(int)、解码失败数量(int)。推理失败数量(int)
          """
-        ret_obj = {}
-        # self.request_data = request_data
+        ret_obj = {"status_code": "0", "msg": "SUCCESS"}
+        # ret_obj["noid"] = noid
+        # ret_obj["cost_time"] = int((time.time() - self.start_time) * 1000)
 
         # 1.解析请求体
-        decode_time = time.time()
-        # self.start_time = decode_time
         decode_success, decode_fail = self.pre_process(request_data)
         # self.decode_fail = decode_fail
-        logger.debug(f"decode time: {format(time.time() - decode_time)}")
-
-        # 替换解码正确的图片，去掉解码失败的
-        for i in range(len(request_data[self.data_type_keyword["keyword_batch"]])):
-            if i in decode_success:
-                request_data[self.data_type_keyword["keyword_batch"]][i]["imageData"] = decode_success[i]
-            else:
-                request_data[self.data_type_keyword["keyword_batch"]][i]["imageData"] = None
 
         # 2.推理模块
         # 解码成功数据大于0，则进行推理
         # predict_fail = {}
-        if len(decode_success) > 0:
-            infer_time = time.time()
-            predict_success, predict_fail = self.module.module_infer(request_data)
+        if decode_success:
+            # infer_time = time.time()
+            future_infer_result = self.module.module_infer(decode_success)
             # self.predict_success = predict_success
             # self.predict_fail = predict_fail
-            logger.debug("infer time: {}".format(time.time() - infer_time))
+            # logger.debug("infer time: {}".format(time.time() - infer_time))
         else:
             logger.error("cannot decode any images from request.")
             # self.predict_success = {}
             # self.predict_fail = {}
             predict_success, predict_fail = {}, {}
             raise
+        ret_obj["result"] = future_infer_result
         # 3.根据请求体，对结果进行后处理，转成微服务输出格式
-        post_process_time = time.time()
+        # post_process_time = time.time()
         target_num = self.post_process(ret_obj)
-        logger.debug("post time: {}".format(time.time() - post_process_time))
+        # logger.debug("post time: {}".format(time.time() - post_process_time))
 
         # 记录每个batch处理情况，成功多少张，失败多少张，解码失败多少张，结果为空多少张
-        decode_fail_num = len(decode_fail.keys())
-        predict_fail_num = len(predict_fail.keys())
+        # decode_fail_num = len(decode_fail.keys())
+        # predict_fail_num = len(predict_fail.keys())
 
         # total data_num = len(list(decode_success.keys()) + len(list(decode_fail.keys())
 
-        total_data_num = target_num + decode_fail_num + predict_fail_num
+        # total_data_num = target_num + decode_fail_num + predict_fail_num
 
         return ret_obj, total_data_num, target_num, decode_fail_num, predict_fail_num
 

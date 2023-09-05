@@ -5,7 +5,7 @@
 # explain  :
 # ==============================================================
 # from ..transfer import logger
-# from .exceptions import AILabException, AILabError
+# from .exceptions import AILabException, ErrorCode
 
 
 # 抽象类, 规范推理接口
@@ -42,7 +42,7 @@ class BaseModuleInfer:
     #                 predict_success[k] = ["Predict Success"]
     #         except Exception as e:
     #             logger.error("file: {}, predict error: {}".format(k, e))
-    #             predict_fail[k] = AILabError.ERROR_INFER_ERROR
+    #             predict_fail[k] = ErrorCode.ERROR_INFER_ERROR
     #     return predict_success, predict_fail
 
     # 由继承该类的具体类实现
