@@ -6,7 +6,7 @@
 # ================================================================================
 import tornado.ioloop
 from packages.yolo_detect.services.handler import APIHandler
-from .predictor import Predictor
+from ..base_interface.base_predict import Predictor
 from packages.yolo_detect.transfer import logger
 
 

@@ -28,7 +28,7 @@ class Collector(object):
         self.post_url = None
         try:
             # 读取配置文件中对应的参数
-            params = config(config_path)
+            # params = config(config_path)
             self.server_port = config['server_port']
             self.post_url = config['post_url']
             self.send_info_time_interval = int(config['send_info_time_interval'])

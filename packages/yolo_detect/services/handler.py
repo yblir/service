@@ -5,13 +5,13 @@ import json
 import time
 import tornado.web
 from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
-from .predictor import Predictor
+from ..base_interface.base_predict import Predictor
 from packages.yolo_detect.services.collector import Collector
 from typing import Dict
 
 collect = Collector()
 # 异常处理
-ailab_error = ErrorCode()
+error_code = ErrorCode()
 
 
 class ReadyHandler(tornado.web.RequestHandler):
@@ -26,7 +26,7 @@ class ReadyHandler(tornado.web.RequestHandler):
 
         status = {
             "status": 200,
-            "time"  : time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
+            "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
         }
         self.write(status)
 
@@ -57,7 +57,7 @@ class APIHandler(tornado.web.RequestHandler):
         """
         status = {
             "status": "ok",
-            "time"  : time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
+            "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
         }
         self.write(status)
 
@@ -83,8 +83,8 @@ class APIHandler(tornado.web.RequestHandler):
         ret_obj = {}
         # 限制最大请求的尺寸为200M
         if len(self.request.body) > 200 * 1024 * 1024:
-            logging.info(ailab_error.ERROR_REQUEST_FILE_LARGE)
-            ret_obj.update(ailab_error.ERROR_REQUEST_FILE_LARGE)
+            logging.info(error_code.ERROR_REQUEST_FILE_LARGE)
+            ret_obj.update(error_code.ERROR_REQUEST_FILE_LARGE)
         else:
             request_data = None
             try:
@@ -106,31 +106,33 @@ class APIHandler(tornado.web.RequestHandler):
             if request_data:
                 try:
                     # 处理微服务的请求
-                    ret_obj, total_data_num, target_num, decode_fail_num, predict_fail_num = \
-                        self.predictor.predict(request_data)
-                    other_fail_num = predict_fail_num
+                    # ret_obj, total_data_num, target_num, decode_fail_num, predict_fail_num = \
+                    #     self.predictor.predict(request_data)
+                    ret_obj = self.predictor.predict(request_data)
+                    # other_fail_num = predict_fail_num
                 except AILabException as e:
                     logging.error(e.errorDict)
                     ret_obj.update(e.errorDict)
                 except Exception as e:
-                    logging.error(ailab_error.ERROR_UNKNOWN)
-                    ret_obj.update(ailab_error.ERROR_UNKNOWN)
+                    logging.error(error_code.ERROR_UNKNOWN)
+                    ret_obj.update(error_code.ERROR_UNKNOWN)
                 finally:
-                    # 输出格式检查
-                    try:
-                        self.predictor.check_out(ret_obj)
-                    except Exception as _:
-                        logging.debug("cannot check_input output format from self.predictor.check_out")
+                    # # 输出格式检查
+                    # 微服务输出格式由写作者控制,不做输出格式校验
+                    # try:
+                    #     self.predictor.check_out(ret_obj)
+                    # except Exception as _:
+                    #     logging.debug("cannot check_input output format from self.predictor.check_out")
 
-                    logging.info("TotalNum:{}, TargetNum:{}, DecodeFailNum:{}, OtherFailNum:{}"
-                                 .format(total_data_num, target_num, decode_fail_num, other_fail_num))
+                    # logging.info("TotalNum:{}, TargetNum:{}, DecodeFailNum:{}, OtherFailNum:{}"
+                    #              .format(total_data_num, target_num, decode_fail_num, other_fail_num))
                     if collect.post_url:
                         collect.to_queue(total_data_num, target_num, decode_fail_num, other_fail_num)
         try:
             json_str = self.predictor.output_format_creator(ret_obj)
         except Exception as ee:
             logging.exception(ee)
-            ret_obj.update(ailab_error.ERROR_RETURN_TO_JSON_ERROR)
+            ret_obj.update(error_code.ERROR_RETURN_TO_JSON_ERROR)
             json_str = self.predictor.output_format_creator(ret_obj)
 
         self.write(json_str)
@@ -144,9 +146,9 @@ class APIHandler(tornado.web.RequestHandler):
                 if (int(tmp) - int(id_data)) < 10000:
                     return
                 else:
-                    raise AILabException(ailab_error.MULTIMEDIA_AUTH_FAILED)
+                    raise AILabException(error_code.MULTIMEDIA_AUTH_FAILED)
             else:
-                raise AILabException(ailab_error.MULTIMEDIA_AUTH_FAILED)
+                raise AILabException(error_code.MULTIMEDIA_AUTH_FAILED)
         else:
             return
 
@@ -167,7 +169,7 @@ class APIHandler(tornado.web.RequestHandler):
                 data = json.loads(str(request_data.body[:len_header], "utf-8"))
             except Exception as e:
                 logging.error(e)
-                raise AILabException(ailab_error.ERROR_REQUEST_BODY_FORMAT)
+                raise AILabException(error_code.ERROR_REQUEST_BODY_FORMAT)
 
         # 传输数据为base64
         else:
@@ -178,7 +180,7 @@ class APIHandler(tornado.web.RequestHandler):
                     data = json.loads(request_data.body)
             except Exception as e:
                 logging.error(e)
-                raise AILabException(ailab_error.ERROR_REQUEST_BODY_FORMAT)
+                raise AILabException(error_code.ERROR_REQUEST_BODY_FORMAT)
         return data
 
     def parse_data_from_byte_request(self, request_data, key):
@@ -194,7 +196,7 @@ class APIHandler(tornado.web.RequestHandler):
             data_size = int(request_data[key])
             len_header = int(self.request.headers["Data-Head-Length"])
             if (data_size + len_header) != len(self.request.body):
-                raise AILabException(ailab_error.ERROR_REQUEST_BODY_FORMAT)
+                raise AILabException(error_code.ERROR_REQUEST_BODY_FORMAT)
             request_data[key] = self.request.body[len_header: len_header + data_size]
         else:
             # 为batch接口
@@ -213,7 +215,7 @@ class APIHandler(tornado.web.RequestHandler):
             len_header = int(self.request.headers["Data-Head-Length"])
 
             if (total_len + len_header) != len(self.request.body):
-                raise AILabException(ailab_error.ERROR_REQUEST_BODY_FORMAT)
+                raise AILabException(error_code.ERROR_REQUEST_BODY_FORMAT)
 
             data_start = len_header
             for i in range(len(data_len_list)):
@@ -235,7 +237,7 @@ class APIHandler(tornado.web.RequestHandler):
                     if keyword in request_keys:
                         self.parse_data_from_byte_request(request_data, keyword)
         except Exception as _:
-            raise AILabException(ailab_error.ERROR_REQUEST_BODY_FORMAT)
+            raise AILabException(error_code.ERROR_REQUEST_BODY_FORMAT)
 
     @staticmethod
     def need_encrypt_or_not():

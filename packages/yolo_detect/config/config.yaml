@@ -4,7 +4,7 @@ cpu_num: 16
 conf: 0.4
 iou: 0.65
 server_port: 8081
-
+post_url: /ailab/multimedia/nap/detect
 # 向外暴露的url
 url: /ai_service/multimedia/yolo/detect
 batch_url: /ai_service/multimedia/yolo/detects
