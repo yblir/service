@@ -5,10 +5,9 @@
 # explain  : 
 # =======================================================
 import os
-# import logging.config
-from transfer import config, logger
-# from decode_tools.utils import config_dict
-from packages.yolo_detect.services.service import Service
+
+from transfer import root_path, config, logger
+from services.service import Service
 from modules.model_infer import ImageInferModule
 from modules.predict import YoloPredictor
 # 解码模块：图片微服务
@@ -20,13 +19,10 @@ from decode_tools.image_decode.fh_image import ImageDecodeCPU
 # from decode_tools.video_decode.fh_video import VideoDecodeGenerator
 
 os.makedirs('log', exist_ok=True)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(BASE_DIR, 'config', 'app.yaml')
 
 if __name__ == "__main__":
     # # data_type_keyword为请求体中数据的关键字，用于解析例如：images/image/video/audioData等..
     data_type_keyword = {"single": "image", "batch": "images"}  # 图片微服务关键字
-
     # data_type_keyword = {"single": "audio", "batch": "audios"}  # 音频微服务关键字
     # data_type_keyword = {"single": "video", "batch": "videos"}  # 视频微服务关键字
 
@@ -40,10 +36,10 @@ if __name__ == "__main__":
     infer_module = ImageInferModule(config)
 
     # 单图片schema
-    json_schema_path = os.path.join(BASE_DIR, 'config', 'single_image_schema.json')
+    json_schema_path = os.path.join(root_path, 'config', 'single_image_schema.json')
     single_predictor = YoloPredictor(config, decoder, infer_module, json_schema_path, data_type_keyword)
     # batch图片schema
-    json_schema_path2 = os.path.join(BASE_DIR, 'config', 'batch_image_schema.json')
+    json_schema_path2 = os.path.join(root_path, 'config', 'batch_image_schema.json')
     batch_predictor = YoloPredictor(config, decoder, infer_module, json_schema_path2, data_type_keyword)
 
     # 只注册一个url

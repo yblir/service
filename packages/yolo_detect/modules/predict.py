@@ -48,7 +48,11 @@ class YoloPredictor(Predictor):
         super(YoloPredictor, self).__init__(params, decoder, module_infer, json_schema_path, json_schema_output_path)
         self.module_infer = module_infer
         self.decoder = decoder
-        self.data_type_keyword = data_type_keyword
+        # self.data_type_keyword = data_type_keyword
+
+        self.keyword_single = data_type_keyword["keyword_single"]
+        self.keyword_batch = data_type_keyword["keyword_batch"]
+
         self.start_time = time.time()
 
         logging.info("init demo Predictor")
@@ -65,30 +69,14 @@ class YoloPredictor(Predictor):
         # 记录预处理开始时间, 在post_process中调用
         self.start_time = time.time()
 
-        raw_data_for_decode = None
         # 1、根据关键字，将数据从字典中读取出来
-        keyword_single = self.data_type_keyword["keyword_single"]
-        keyword_batch = self.data_type_keyword["keyword_batch"]
-
-        if keyword_single in request:
-            try:
-                if not isinstance(request["faceKeyPoint"][0], list):
-                    raise AILabException(error_code.ERROR_PARAMETER)
-            except Exception:
-                raise AILabException(error_code.ERROR_PARAMETER)
-            raw_data_for_decode = request[keyword_single]
-        # batch请求需将list里面的字典数据提取出来
-        if keyword_batch in request:
-            raw_data_for_decode = []
-            for item in request[keyword_batch]:
-                if "imageData" not in item.keys():
-                    logging.error("no key imageData")
-                    raise AILabException(error_code.ERROR_PARAMETER)
-                raw_data_for_decode.append(item["imageData"])
-
-        if not raw_data_for_decode:
-            # 若请求体中无关键字，则前处理错误
-            logging.error(error_code.ERROR_PARAMETER)
+        if self.keyword_single in request:
+            raw_data_for_decode = request[self.keyword_single]
+        # batch请求中列表是待推理的单个元素
+        elif self.keyword_batch in request:
+            raw_data_for_decode = request[self.keyword_batch]
+        else:
+            logging.error("keyword must be single or batch")
             raise AILabException(error_code.ERROR_PARAMETER)
 
         # 2.解码操作

@@ -1,8 +1,9 @@
-# coding:utf-8
-
-"""
-异常定义
-"""
+# -*- coding: utf-8 -*-
+# @Time    : 2023/5/24 19:06
+# @Author  : yblir
+# @File    : exceptions.py
+# explain  : 异常捕获信息
+# =======================================================
 
 
 class AILabException(Exception):

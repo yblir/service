@@ -43,7 +43,7 @@ class ImageInferModule(BaseModuleInfer):
 
         flag = self.engine.initEngine(self.param)
         if flag != 0:
-            # logger.error('init Engine fail')
+            logger.error('init Engine fail')
             sys.exit()
 
     def init_param(self, param_dict: dict):
@@ -53,28 +53,24 @@ class ImageInferModule(BaseModuleInfer):
 
     # todo 重写infer
     def module_infer(self, input_data):
-        # results = []
-        # infer_fail = {}
-        # rows = input_data["image"] if input_data["image"] else input_data["images"]
+        future_infer_result = None
         # 检查输入数据是否是图片矩阵
-        if not isinstance(input_data, np.ndarray):
-            # 检查是否是list
-            if isinstance(input_data, list):
-                for item in input_data:
-                    if not isinstance(item, np.ndarray):
-                        # 如果有元素不是图片矩阵,打印error,提前结束推理任务
-                        logger.error(f"input data of inferEngine is list, "
-                                     f"have element type is not np.ndarray, but is {type(item)}")
-            else:
-                # 如果也不是list,打印error,提前结束推理任务
-                logger.error(f"input data of inferEngine must be np.ndarray or list,but now is {type(input_data)}")
-                sys.exit()
+        if not isinstance(input_data, np.ndarray) and isinstance(input_data, list):
+            for item in input_data:
+                if not isinstance(item, np.ndarray):
+                    # 如果有元素不是图片矩阵,打印error,提前结束推理任务
+                    logger.error(f"input data of inferEngine is list, "
+                                 f"but have element type is not np.ndarray, but is {type(item)}")
+                    return future_infer_result
+        else:
+            # 如果也不是list,打印error,提前结束推理任务
+            logger.error(f"input data of inferEngine must be np.ndarray or list,but now is {type(input_data)}")
+            sys.exit()
 
         try:
             future_infer_result = self.engine.inferEngine(input_data)
         except Exception as e:
             logger.error(f"engine infer fail: {e}")
-            future_infer_result = None
 
         return future_infer_result
 

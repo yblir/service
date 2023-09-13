@@ -11,10 +11,10 @@ import base64
 import logging
 
 from ..base_decoder import BaseDecoder, BaseDecoderMultiThread
-from .exceptions import AILabException, AILabError
+from ...utils.exceptions import AILabException, ErrorCode
 
 # 异常处理
-ailab_error = AILabError()
+error_code = ErrorCode()
 
 
 class ImageDecodeCPU(BaseDecoder):
@@ -25,7 +25,7 @@ class ImageDecodeCPU(BaseDecoder):
     def __init__(self, params):
         super(ImageDecodeCPU, self)._init__(params=params)
 
-    def decode_one_data(self, one_data, img_type=1):
+    def decode_raw_data(self, one_data, img_type=1):
         """
         图片解码
         :param one_data：解base64/解二进制之后的数据
@@ -39,12 +39,12 @@ class ImageDecodeCPU(BaseDecoder):
                 print('convert dtype to uint8 by imdecode again.')
             img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         except BaseException as _:
-            logging.warning(ailab_error.ERROR_IMAGE_DECODE)
-            return False, ailab_error.ERROR_IMAGE_DECODE
+            logging.error(error_code.ERROR_IMAGE_DECODE)
+            return False, error_code.ERROR_IMAGE_DECODE
 
         if img is None:
-            logging.warning(ailab_error.ERROR_IMAGE_DECODE)
-            return False, ailab_error.ERROR_IMAGE_DECODE
+            logging.error(error_code.ERROR_IMAGE_DECODE)
+            return False, error_code.ERROR_IMAGE_DECODE
         if img_type:
             img = check_bgr(img, "")
         else:
@@ -81,12 +81,12 @@ class ImageDecodeCPUThread(BaseDecoderMultiThread):
                 print('convert dtype to uint8 by imdecode again.')
                 img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         except BaseException as _:
-            logging.warning(ailab_error.ERROR_INAGE_DECODE)
-            return False, ailab_error.ERROR_IMAGE_DECODE
+            logging.warning(error_code.ERROR_INAGE_DECODE)
+            return False, error_code.ERROR_IMAGE_DECODE
 
         if img is None:
-            logging.warning(ailab_error.ERROR_IMAGE_DECODE)
-            return False, ailab_error.ERROR_IMAGE_DECODE
+            logging.warning(error_code.ERROR_IMAGE_DECODE)
+            return False, error_code.ERROR_IMAGE_DECODE
 
         img = check_bgr(img, "")
 
@@ -120,12 +120,12 @@ class ImageDecodeGPU(BaseDecoder):
                                         output_type=ouput_img_type,
                                         max_size=max_size)
 
-    def decode_one_data(self, one_data):
+    def decode_raw_data(self, one_data):
         try:
             img_array = np.frombuffer(one_data, np.uint8)
 
         except BaseException as _:
-            return False, self.ailab_error.ERROR_DECODE
+            return False, self.error_code.ERROR_DECODE
         return True, img_array
 
     def cpu_decode_process(self, images_nodecodes_list, unzip_success_key_list):
@@ -148,12 +148,12 @@ class ImageDecodeGPU(BaseDecoder):
                     print('convert dtype to uint8 by imdecode again.')
                     img = cv2.imdecode(one_data, cv2.IMREAD_COLOR)
             except BaseException as _:
-                logging.warning(ailab_error.ERROR_IMAGE_DECODE)
-                fail[key] = ailab_error.ERROR_IMAGE_DECODE
+                logging.warning(error_code.ERROR_IMAGE_DECODE)
+                fail[key] = error_code.ERROR_IMAGE_DECODE
 
             if img is None:
-                logging.warning(ailab_error.ERROR_IMAGE_DECODE)
-                fail[key] = ailab_error.ERROR_IMAGE_DECODE
+                logging.warning(error_code.ERROR_IMAGE_DECODE)
+                fail[key] = error_code.ERROR_IMAGE_DECODE
 
             img = check_bgr(img, "")
             success[key] = img
@@ -172,7 +172,7 @@ class ImageDecodeGPU(BaseDecoder):
         for index, one_data in enumerate(raw_data):
             status, unzip_data = self.unpackage_request(one_data)  # 解base64或二进制数据
             if status:
-                status, _decoded_data = self.decode_one_data(unzip_data)
+                status, _decoded_data = self.decode_raw_data(unzip_data)
                 if status:
                     images_nodecodes_list.append(_decoded_data)
                     unzip_success_key_list.append(index)
@@ -200,7 +200,7 @@ class ImageDecodeGPU(BaseDecoder):
             logging.warning('nvdecoder has error, ret_size=(), need_decode_num={}'.format(ret_size, succ_num))
             if ret_size == 0:
                 for i in range(succ_num):
-                    fail[unzip_success_key_list[i]] = self.ailab_error.ERROR_IMAGE_DECODE
+                    fail[unzip_success_key_list[i]] = self.error_code.ERROR_IMAGE_DECODE
             elif ret_size < 0:
                 logging.warning('nvdecoder error: ret_size={}, using cpu decode.'.format(ret_size))
                 _success, _fail = self.cpu_decode_process(images_nodecodes_list, unzip_success_key_list)
@@ -210,7 +210,7 @@ class ImageDecodeGPU(BaseDecoder):
             else:
                 for i in range(succ_num):
                     if ret_heights[i] == 0:
-                        fail[unzip_success_key_list[i]] = self.ailab_error.ERROR_IMAGE_DECODE
+                        fail[unzip_success_key_list[i]] = self.error_code.ERROR_IMAGE_DECODE
                     else:
                         success[unzip_success_key_list[i]] = ret_size, ret_ptrs[i], ret_heights[i], \
                                                              ret_widths[i], ret_channels[i]

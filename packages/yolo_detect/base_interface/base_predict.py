@@ -9,6 +9,8 @@ import json
 import os
 import re
 import time
+
+import numpy as np
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from abc import ABCMeta, abstractmethod
@@ -112,27 +114,24 @@ class Predictor(metaclass=ABCMeta):
         # 1.解析请求体
         decode_success, decode_fail = self.pre_process(request_data)
         # self.decode_fail = decode_fail
-
+        total_data_num = 1 if isinstance(decode_success, np.ndarray) else len(decode_success)
         # 2.推理模块
         # 解码成功数据大于0，则进行推理
         # predict_fail = {}
         if decode_success:
-            # infer_time = time.time()
             future_infer_result = self.module.module_infer(decode_success)
-            # self.predict_success = predict_success
-            # self.predict_fail = predict_fail
-            # logger.debug("infer time: {}".format(time.time() - infer_time))
+            if not future_infer_result:
+                # 错误日志在module_infer中已经写过
+                raise
+            # 如果单个推理项, 去除外围的列表
+            future_infer_result = future_infer_result if isinstance(decode_success, list) else future_infer_result[0]
         else:
             logger.error("cannot decode any images from request.")
-            # self.predict_success = {}
-            # self.predict_fail = {}
-            predict_success, predict_fail = {}, {}
             raise
+
         ret_obj["result"] = future_infer_result
         # 3.根据请求体，对结果进行后处理，转成微服务输出格式
-        # post_process_time = time.time()
         target_num = self.post_process(ret_obj)
-        # logger.debug("post time: {}".format(time.time() - post_process_time))
 
         # 记录每个batch处理情况，成功多少张，失败多少张，解码失败多少张，结果为空多少张
         # decode_fail_num = len(decode_fail.keys())

@@ -15,7 +15,7 @@ from ..utils.exceptions import AILabException, ErrorCode, AILabException, ERROR_
 from ..transfer import logger
 
 
-def unpackage_request(raw_data):
+def unpack_request(raw_data):
     """
     将base64数据或二进制数据解成原生数据，为解码做准备
     param: ailab_error:
@@ -31,7 +31,7 @@ def unpackage_request(raw_data):
         if isinstance(raw_data, str):
             unzip_data = base64.b64decode(raw_data)
     except BaseException as _:
-        logger.info("ERROR_DECODE_BASE64: decode base64 request error.")
+        logger.error("ERROR_DECODE_BASE64: decode base64 request error.")
         return False, ErrorCode.ERROR_DECODE_BASE64
 
     # 或添加自定义解包
@@ -54,9 +54,9 @@ class BaseDecoder(object):
         """
         self.params = params
         self.ailab_error = ailab_error
-        self.unpackage_request = unpackage_request
+        self.unpack_request = unpack_request
 
-    def decode_one_data(self, one_data):
+    def decode_raw_data(self, one_data):
         """
         根据不同的解码程序，对数据进行解码
         :param one_data 解pase64/解二进制后的数据
@@ -70,52 +70,52 @@ class BaseDecoder(object):
         :param raw_data 始数据
         :return: 解码之后的2个字典，分别为success，fail
         """
-        success = {}
-        fail = {}
+        success, fail = [], []
         # 判断请求是单个数据还是batch数据(batch数据为list格式)
         if not isinstance(raw_data, list):
-            # 单个请求
-            status, unzip_data = self.unpackage_request(raw_data)  # 解base64或二进制数据
-            if status:
+            # 单个请求,解base64或二进制数据
+            unpack_flag, unzip_data = self.unpack_request(raw_data)
+            if unpack_flag:
                 # 解包正确，进一步对数据进行解码
-                status, _decoded_data = self.decode_one_data(unzip_data)
-                if status:
-                    success[0] = _decoded_data
+                decode_flag, decoded_data = self.decode_raw_data(unzip_data)
+                if decode_flag:
+                    success = decoded_data
                 else:
-                    fail[0] = _decoded_data
+                    fail = decoded_data
             else:
                 # 解包失败
-                fail[0] = unzip_data
+                fail = unzip_data
         else:
             # 为batch请求
             for index, one_data in enumerate(raw_data):
-                status, unzip_data = self.unpackage_request(one_data)  # 解base64或二进制数据
-                if status:
-                    status, _decoded_data = self.decode_one_data(unzip_data)
-                    if status:
-                        success[index] = _decoded_data
+                unpack_flag, unzip_data = self.unpack_request(one_data)  # 解base64或二进制数据
+                if unpack_flag:
+                    decode_flag, _decoded_data = self.decode_raw_data(unzip_data)
+                    if decode_flag:
+                        success.append(_decoded_data)
                     else:
-                        fail[index] = _decoded_data
+                        fail.append(_decoded_data)
                 else:
-                    fail[index] = unzip_data
+                    # 记录解码失败数据编号,便于以后追踪
+                    fail.append((index, unzip_data))
 
         return success, fail
 
 
 class BaseDecoderProcessor(Thread):
-    def __init__(self, thread_id, consumer_process, source_q, back_q, unpackage_request):
+    def __init__(self, thread_id, consumer_process, source_q, back_q, unpack_request):
         Thread.__init__(self)
 
         self.thread_id = thread_id
         self.consumer_process = consumer_process
         self.source_q = source_q
         self.back_q = back_q
-        self.unpackage_request = unpackage_request
+        self.unpack_request = unpack_request
 
     def run(self):
         while True:
             index, data = self.source_q.get()
-            status, unzip_data = self.unpackage_request(data)  # 解base64或二进制数据
+            status, unzip_data = self.unpack_request(data)  # 解base64或二进制数据
             if status:
                 status, _decoded_data = self.consumer_process(unzip_data, self.thread_id)
                 self.back_q.put((status, index, _decoded_data))
@@ -137,12 +137,12 @@ class BaseDecoderMultiThread(object):
         """
         self.thread_num = int(thread_num)
         self.ailab_error = ailab_error
-        self.unpackage_request = unpackage_request
+        self.unpack_request = unpack_request
         # 缓冲数据
         self.source_q = Queue.Queue()  # 通道的输入，用于数据的传输到解码模块中
         self.back_q = Queue.Queue()  # 通道的输出，用于将解码之后的数据传回
         for index in range(self.thread_num):
-            p = BaseDecoderProcessor(index, self.decode_one_data, self.source_q, self.back_q, self.unpackage_request)
+            p = BaseDecoderProcessor(index, self.decode_one_data, self.source_q, self.back_q, self.unpack_request)
             p.daemon = True
             p.start()
 
@@ -166,7 +166,7 @@ class BaseDecoderMultiThread(object):
         # 判断请求是单个数据还是batch数据(batch数据为1ist格式)
         if not isinstance(raw_data, list):
             # 单个请求
-            status, unzip_data = self.unpackage_request(raw_data)  # 解base64或二进制数据
+            status, unzip_data = self.unpack_request(raw_data)  # 解base64或二进制数据
             if status:
                 status, _decoded_data = self.decode_one_data(unzip_data, 0)
                 if status:

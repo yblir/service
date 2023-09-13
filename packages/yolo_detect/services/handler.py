@@ -4,10 +4,11 @@ import logging
 import json
 import time
 import tornado.web
-from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
-from ..base_interface.base_predict import Predictor
-from packages.yolo_detect.services.collector import Collector
 from typing import Dict
+
+from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
+from packages.yolo_detect.base_interface.base_predict import Predictor
+from packages.yolo_detect.services.collector import Collector
 
 collect = Collector()
 # 异常处理
@@ -26,7 +27,7 @@ class ReadyHandler(tornado.web.RequestHandler):
 
         status = {
             "status": 200,
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
+            "time"  : time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
         }
         self.write(status)
 
@@ -57,7 +58,7 @@ class APIHandler(tornado.web.RequestHandler):
         """
         status = {
             "status": "ok",
-            "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
+            "time"  : time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(time.time())))
         }
         self.write(status)
 
