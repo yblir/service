@@ -47,6 +47,9 @@ class ImageInferModule(BaseModuleInfer):
             sys.exit()
 
     def init_param(self, param_dict: dict):
+        """
+        将配置文件中参数设置写入initEngine中
+        """
         for k, v in param_dict.items():
             if hasattr(self.param, k):
                 setattr(self.param, k, v)
@@ -54,6 +57,7 @@ class ImageInferModule(BaseModuleInfer):
     # todo 重写infer
     def module_infer(self, input_data):
         future_infer_result = None
+
         # 检查输入数据是否是图片矩阵
         if not isinstance(input_data, np.ndarray) and isinstance(input_data, list):
             for item in input_data:

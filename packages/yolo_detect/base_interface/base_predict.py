@@ -8,12 +8,10 @@ from typing import Dict
 import json
 import os
 import re
-import time
 
-import numpy as np
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from ..utils.exceptions import AILabException, ErrorCode
 from ..transfer import config, logger
 
@@ -34,17 +32,14 @@ class Predictor(metaclass=ABCMeta):
         5. 返回推理状态信息: 请求总数,目标数量,解码失败数量和推理失败数量
     """
 
-    def __init__(self, params, decoder, module_infer, json_schema_path: str = "", json_schema_output_path: str = ""):
+    def __init__(self, json_schema_path: str = "", json_schema_output_path: str = ""):
         """
         初始化推理模块
-        :param params: 参数
-        :param decoder: 解码模块
-        :param module_infer: 推理模块
         :param json_schema_path: json_schema路径
         """
-        self.params = params  # 参数配置
-        self.module = module_infer  # 初始化完成后的推理模块类
-        self.decoder = decoder  # 初始化完成后的解码模块类
+        # self.params = params  # 参数配置
+        # self.module = module_infer  # 初始化完成后的推理模块类
+        # self.decoder = decoder  # 初始化完成后的解码模块类
         self.request_data = None  # 请求数据,用于获取请求数据内的参数
         self.schema_pattern = re.compile(r'.*is too long')  # schema的模块
         if os.path.exists(json_schema_path):
@@ -107,41 +102,7 @@ class Predictor(metaclass=ABCMeta):
          :param request_data: dict
          :return:微服务的返回信息(Dict)、请求总数(int)、推理正确数量(int)、解码失败数量(int)。推理失败数量(int)
          """
-        ret_obj = {"status_code": "0", "msg": "SUCCESS"}
-        # ret_obj["noid"] = noid
-        # ret_obj["cost_time"] = int((time.time() - self.start_time) * 1000)
-
-        # 1.解析请求体
-        decode_success, decode_fail = self.pre_process(request_data)
-        # self.decode_fail = decode_fail
-        total_data_num = 1 if isinstance(decode_success, np.ndarray) else len(decode_success)
-        # 2.推理模块
-        # 解码成功数据大于0，则进行推理
-        # predict_fail = {}
-        if decode_success:
-            future_infer_result = self.module.module_infer(decode_success)
-            if not future_infer_result:
-                # 错误日志在module_infer中已经写过
-                raise
-            # 如果单个推理项, 去除外围的列表
-            future_infer_result = future_infer_result if isinstance(decode_success, list) else future_infer_result[0]
-        else:
-            logger.error("cannot decode any images from request.")
-            raise
-
-        ret_obj["result"] = future_infer_result
-        # 3.根据请求体，对结果进行后处理，转成微服务输出格式
-        target_num = self.post_process(ret_obj)
-
-        # 记录每个batch处理情况，成功多少张，失败多少张，解码失败多少张，结果为空多少张
-        # decode_fail_num = len(decode_fail.keys())
-        # predict_fail_num = len(predict_fail.keys())
-
-        # total data_num = len(list(decode_success.keys()) + len(list(decode_fail.keys())
-
-        # total_data_num = target_num + decode_fail_num + predict_fail_num
-
-        return ret_obj, total_data_num, target_num, decode_fail_num, predict_fail_num
+        raise NotImplementedError
 
     def output_format_creator(self, ret_obj: Dict):
         """

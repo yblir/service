@@ -70,7 +70,7 @@ class BaseDecoder(object):
         :param raw_data 始数据
         :return: 解码之后的2个字典，分别为success，fail
         """
-        success, fail = [], []
+        success, fail = {}, {}
         # 判断请求是单个数据还是batch数据(batch数据为list格式)
         if not isinstance(raw_data, list):
             # 单个请求,解base64或二进制数据
@@ -92,12 +92,12 @@ class BaseDecoder(object):
                 if unpack_flag:
                     decode_flag, _decoded_data = self.decode_raw_data(unzip_data)
                     if decode_flag:
-                        success.append(_decoded_data)
+                        success[index] = _decoded_data
                     else:
-                        fail.append(_decoded_data)
+                        fail[index] = _decoded_data
                 else:
                     # 记录解码失败数据编号,便于以后追踪
-                    fail.append((index, unzip_data))
+                    fail[index] = unzip_data
 
         return success, fail
 
