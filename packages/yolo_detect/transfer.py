@@ -12,9 +12,13 @@ import yaml
 cur_path = Path(__file__).resolve()
 # 根目录
 root_path = str(cur_path.parent)
-
+root_path2 = str(cur_path.parent.parent)
+root_path3 = str(cur_path.parent.parent.parent)
+print(root_path2)
 # 将根目录yolo_detectd添加到搜索路径中
 sys.path.append(root_path)
+sys.path.append(root_path2)
+sys.path.append(root_path3)
 
 from utils.logger_modify import MyLogger
 

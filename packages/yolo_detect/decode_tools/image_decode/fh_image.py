@@ -6,12 +6,10 @@
 # ================================================================================
 import cv2
 import numpy as np
-import time
-import base64
 import logging
 
-from ..base_decoder import BaseDecoder, BaseDecoderMultiThread
-from ...utils.exceptions import AILabException, ErrorCode
+from decode_tools.base_decoder import BaseDecoder, BaseDecoderMultiThread
+from utils.exceptions import AILabException, ErrorCode
 
 # 异常处理
 error_code = ErrorCode()
@@ -23,7 +21,7 @@ class ImageDecodeCPU(BaseDecoder):
     """
 
     def __init__(self, params):
-        super(ImageDecodeCPU, self)._init__(params=params)
+        super(ImageDecodeCPU, self).__init__(params=params)
 
     def decode_raw_data(self, one_data, img_type=1):
         """

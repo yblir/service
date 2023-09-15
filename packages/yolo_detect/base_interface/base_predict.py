@@ -12,8 +12,9 @@ import re
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from abc import ABCMeta
-from ..utils.exceptions import AILabException, ErrorCode
-from ..transfer import config, logger
+
+from utils.exceptions import AILabException, ErrorCode
+from transfer import config, logger
 
 # 异常处理
 error_code = ErrorCode()

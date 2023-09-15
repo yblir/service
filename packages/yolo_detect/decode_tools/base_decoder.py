@@ -11,8 +11,11 @@ import six
 
 import queue as Queue
 from threading import Thread
-from ..utils.exceptions import AILabException, ErrorCode, AILabException, ERROR_IMAGE_DECODE
-from ..transfer import logger
+
+from utils.exceptions import AILabException, ErrorCode
+from transfer import logger
+
+error_code = ErrorCode()
 
 
 def unpack_request(raw_data):
@@ -26,13 +29,13 @@ def unpack_request(raw_data):
     if isinstance(raw_data, bytes):
         return True, raw_data
     # base64数据
-    unzip_data = ErrorCode.ERROR_DECODE
+    unzip_data = error_code.ERROR_IMAGE_DECODE
     try:
         if isinstance(raw_data, str):
             unzip_data = base64.b64decode(raw_data)
     except BaseException as _:
         logger.error("ERROR_DECODE_BASE64: decode base64 request error.")
-        return False, ErrorCode.ERROR_DECODE_BASE64
+        return False, error_code.ERROR_DECODE_BASE64
 
     # 或添加自定义解包
     return True, unzip_data
@@ -67,7 +70,7 @@ class BaseDecoder(object):
     def decode(self, raw_data):
         """
         解码模块的主要解码接口
-        :param raw_data 始数据
+        :param raw_data list,始数据
         :return: 解码之后的2个字典，分别为success，fail
         """
         success, fail = {}, {}
@@ -79,12 +82,12 @@ class BaseDecoder(object):
                 # 解包正确，进一步对数据进行解码
                 decode_flag, decoded_data = self.decode_raw_data(unzip_data)
                 if decode_flag:
-                    success = decoded_data
+                    success[0] = decoded_data
                 else:
-                    fail = decoded_data
+                    fail[0] = decoded_data
             else:
                 # 解包失败
-                fail = unzip_data
+                fail[0] = unzip_data
         else:
             # 为batch请求
             for index, one_data in enumerate(raw_data):

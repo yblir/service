@@ -40,6 +40,8 @@ class ErrorCode:
     ERROR_IMAGE_SIZE = {"status": "1002", "msg": "ERROR_IMAGE_SIZE"}
     # 图片解码失败
     ERROR_IMAGE_DECODE = {"status": "1003", "msg": "ERROR_IMAGE_DECODE"}
+    # 图片base64码错误
+    ERROR_DECODE_BASE64 = {"status": "1003,", "msg": "ERROR_DECODE_BASE64"}
     # 请求体积过大
     ERROR_REQUEST_FILE_LARGE = {"status": "1004", "msg": "ERROR_REQUEST_FILE_LARGE"}
     # 请求体格式异常

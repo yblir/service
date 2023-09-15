@@ -4,18 +4,14 @@
 # @File    : predict.py
 # explain  : 
 # ================================================================================
-import json
 import uuid
 import time
 import logging
-import base64
-import json
-import numpy as np
 
 from typing import Dict
-from ..base_interface.base_predict import Predictor
-from ..utils.exceptions import AILabException, ErrorCode
-from ..transfer import logger
+from base_interface.base_predict import Predictor
+from utils.exceptions import AILabException, ErrorCode
+from transfer import logger
 
 # 异常处理
 error_code = ErrorCode()
@@ -46,10 +42,11 @@ class YoloPredictor(Predictor):
         :param data_type_keyword:数据关键字，，用于提取发送请求中的数据
         :param json_schema_output_path:输出的校验schema文档
         """
-
         super(YoloPredictor, self).__init__(json_schema_path, json_schema_output_path)
         self.decode_success = None
         self.decode_fail = None
+        # 标记输入时单张还是batch
+        self.single_flag = True
 
         self.total_data_num = 0
         self.decode_fail = None
@@ -58,12 +55,12 @@ class YoloPredictor(Predictor):
         self.decoder = decoder
         # self.data_type_keyword = data_type_keyword
 
-        self.keyword_single = data_type_keyword["keyword_single"]
-        self.keyword_batch = data_type_keyword["keyword_batch"]
+        self.keyword_single = data_type_keyword["single"]
+        self.keyword_batch = data_type_keyword["batch"]
 
         self.start_time = time.time()
 
-        logging.info("init demo Predictor")
+        logger.info("init demo Predictor")
 
     # predict已在基类中实现, 所有服务可公用
     # def predict(self, request_data: Dict):
@@ -89,10 +86,13 @@ class YoloPredictor(Predictor):
 
         # 1、根据关键字，将数据从字典中读取出来
         if self.keyword_single in request:
+            self.single_flag = True
             raw_data_for_decode = request[self.keyword_single]
             self.total_data_num = 1
         # batch请求中列表是待推理的单个元素
         elif self.keyword_batch in request:
+            # false, 表示batch
+            self.single_flag = False
             # raw_data dict, {0:xxx, 1:xxx, ...}
             raw_data_batch = request[self.keyword_batch]
             raw_data_len = len(raw_data_batch)
@@ -108,9 +108,9 @@ class YoloPredictor(Predictor):
 
         # 2.解码操作
         # 解码后,batch,解码结果是字典,int 类型0,1,2,为键,值为nd.array格式图片矩阵
-        self.decode_success, decode_fail = self.decoder.decode(raw_data_for_decode)
+        decode_success, decode_fail = self.decoder.decode(raw_data_for_decode)
 
-        return self.decode_success, decode_fail
+        return decode_success, decode_fail
 
     def predict(self, request_data: Dict):
         """
@@ -124,16 +124,15 @@ class YoloPredictor(Predictor):
         self.request_data = request_data
         # 只要输入图片格式没问题,不会出现推理失败情况, 最多什么都没预测出来
         predict_fail_num = 0
-        # 1.解析请求体, 单个请求self.decode_success是图片numpy矩阵,batch时是多个numpy矩阵列表
+        # 1.解析请求体, single, batch,解码结果都是dict,int 类型0,1,2,为键,值为nd.array格式图片矩阵,decode_fail也是dict
         decode_success, self.decode_fail = self.pre_process(request_data)
         # 在后处理中有应用
         self.decode_success = decode_success
 
         # 2.推理模块
         if decode_success:
-            if isinstance(decode_success, dict):
-                # 对于batch,将dict转为仅含numpy矩阵的list
-                decode_success = [decode_success[i] for i in range(len(decode_success))]
+            # 将dict转为仅含numpy矩阵的list
+            decode_success = [decode_success[i] for i in range(len(decode_success))]
             future_infer_result = self.module.module_infer(decode_success)
         else:
             logger.error("cannot decode any images from request.")
@@ -144,13 +143,9 @@ class YoloPredictor(Predictor):
             raise
         ret_obj["result"] = future_infer_result
 
-        # todo 计算解码失败数量, 待修改
-        if isinstance(self.decode_fail, dict):
-            decode_fail_num = len(self.decode_fail)
-        elif self.decode_fail:
-            decode_fail_num = 1
-        else:
-            decode_fail_num = 0
+        # 计算解码失败数量
+        decode_fail_num = len(self.decode_fail)
+
         # 3.根据请求体，对结果进行后处理，转成微服务输出格式
         # todo 返回的结果的格式在后post_process定义
         target_num = self.post_process(ret_obj)
@@ -170,42 +165,35 @@ class YoloPredictor(Predictor):
         except Exception as _:
             noid = str(uuid.uuid1())
 
-        if noid == "":
-            noid = str(uuid.uuid1())
+        ret_obj["noid"] = noid if noid else str(uuid.uuid1())
 
-        ret_obj["noid"] = noid
+        # 收集解码失败信息
+        for i in self.decode_fail.keys():
+            dict_sort_fail[i] = {
+                "status": self.decode_fail[i]["status"],
+                "msg"   : self.decode_fail[i]["msg"],
+                "result": []
+            }
+
+        # 收集推理失败的信息? 应该不存在
+
+        # 通过get从C++取回推理结果, 如果没有推理完成,在此阻塞,直到拿到结果
         cur_infer_result = ret_obj["result"].get()
 
-        # todo 写法有问题, 因为解码成功的编号不一定连续
-        for key, value in self.decode_success.items():
-            dict_sort_success[key] = cur_infer_result[key]
-
-        # 对推理成功的数据返回对应的推理结果
-        target_num = 0  # 用于记录目标数据
-        for i, item in enumerate(predict_success):
-            dict_sort_success[i] = item
-            target_num += 1
-
-        # 将一批数据中返回成功和失败的两个字典拼接起来
-        dict_sort = {**dict_sort_fail, **dict_sort_success}  # dict(dict1,**dict2)是两个字典的拼接
-
-        # 按键把字典进行排序，目的是与输入数据的顺序保持一致
-        ret_info = []
-        for i in sorted(dict_sort):
-            ret_info.append(dict_sort[i])
+        if self.single_flag:
+            ret_info, target_num = (cur_infer_result[0], 1) if self.decode_success else (dict_sort_fail[0], 0)
+        else:
+            # 将推理结果与图片编号对应起来, 因为有解码失败的风险存在, 所以decode_success中编号有可能不连续
+            keys = sorted(self.decode_success.keys())
+            dict_sort_success = dict(zip(keys, cur_infer_result))
+            target_num = len(keys)
+            # 将一批数据中返回成功和失败的两个字典拼接起来
+            ret_info = {**dict_sort_fail, **dict_sort_success}  # dict(dict1,**dict2)是两个字典的拼接
 
         # 将返回结果放在result中
-        ret_obj['faceObjectRows'] = ret_info
+        ret_obj['result'] = ret_info
 
-        ret_obj["cost_time"] = int((time.time() - self.start_time) * 1000)
+        ret_obj["cost_time"] = str(round(int((time.time() - self.start_time) * 1000), 3)) + " ms"
 
         return target_num
 
-    # def output_format_creator(self, ret_obj: Dict):
-    #     """
-    #     根据不同服务的输出格式,自行添加相应的参数
-    #     如下事例添加time_ms 和noid
-    #     获取noid
-    #     """
-    #     json_str = json.dumps(ret_obj)
-    #     return json_str

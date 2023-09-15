@@ -7,18 +7,18 @@
 import sys
 import numpy as np
 
-from ..transfer import config, logger
-from ..utils.exceptions import AILabException, ErrorCode
-from ..base_interface.base_module_infer import BaseModuleInfer
+from packages.yolo_detect.transfer import config, logger
+from packages.yolo_detect.utils.exceptions import AILabException, ErrorCode
+from packages.yolo_detect.base_interface.base_module_infer import BaseModuleInfer
 
 from ctypes import cdll
 
 try:
-    from ..models import deployment
+    from packages.yolo_detect.modules import deployment
 except:
     for lib_path in config["library"]:
         cdll.LoadLibrary(lib_path)
-    from ..models import deployment
+    from packages.yolo_detect.modules import deployment
 
 # 异常处理
 ailab_error = ErrorCode()

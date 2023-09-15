@@ -15,10 +15,10 @@ model_path: /home/models/nap_detect_v1.0_41c18d829669e6fd8216705e3af3f5e7.pt
 
 # 动态库依赖包路径
 library:
-  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer.so
-  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer_builder_resource.so.8.6.1
-  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvinfer_plugin.so
-  - /usr/local/TensorRT-8.6.1.6/targets/x86_64-linux-gnu/lib/libnvonnxparser.so
+  - /usr/local/TensorRT-8.5.1.7/targets/x86_64-linux-gnu/lib/libnvinfer.so
+  - /usr/local/TensorRT-8.5.1.7/targets/x86_64-linux-gnu/lib/libnvinfer_builder_resource.so.8.5.1
+  - /usr/local/TensorRT-8.5.1.7/targets/x86_64-linux-gnu/lib/libnvinfer_plugin.so
+  - /usr/local/TensorRT-8.5.1.7/targets/x86_64-linux-gnu/lib/libnvonnxparser.so
 
 # 手动配置的参数
 param_dict:
@@ -31,8 +31,8 @@ param_dict:
     inputHeight: 640
     inputWidth: 640
 
-    onnxPath: /mnt/e/GitHub/service/models/yolov5s.onnx
-    enginePath: /mnt/e/GitHub/service/models/yolov5s_NVIDIAGeForceRTX4090_FP32.engine
+    onnxPath: /mnt/e/GitHub/service/packages/yolo_detect/models/yolov5s.onnx
+    enginePath: /mnt/e/GitHub/service/packages/yolo_detect/models/yolov5s_NVIDIAGeForceRTX4090_FP32.engine
 
     inputName: images
     outputName: output
