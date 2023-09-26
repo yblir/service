@@ -18,7 +18,7 @@ if [ $? -ne 0 ] ; then echo "ERROR: Failed to build image";exit -1;fi
 echo "Do you want to save the newly built image [$IMAGE_NAME: $IMAGE_TAG] ?"
 read -p "Please input (y/n): " yn
 if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
-    echo "Saving image..."; docker save $IMAGB_NAME:$IMAGE_TAG > ./image/${IMAGE_NAME}_${IMAGE_TAG}.tar;echo "The image has been saved."; break;
+    echo "Saving image..."; docker save $IMAGB_NAME:$IMAGE_TAG > ./image/${IMAGE_NAME}_${IMAGE_TAG}.tar;echo "The image has been saved.";
 else
-    echo "The image will not be saved.";break;
+    echo "The image will not be saved.";
 fi

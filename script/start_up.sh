@@ -10,7 +10,7 @@ for k in $( seq 1 ${INSTANCE_NUM} )
 do
 
   # 修改各个服务配置
-  CONFIG_FILE=/home/${app_dir_name}$k/config/app.conf
+  CONFIG_FILE=/home/${app_dir_name}$k/config/config.yaml
   portk=$((${SERVER_PORT} + $k))
   sed -i "s#device_id\s*=.*#device_id=${GPU_IDS}#g" ${CONFIG_FILE}
   sed -i "s#server_port\s*=.*#server_port=${portk}#g" ${CONFIG_FILE}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ce706dc2-3bd8-47c0-96c3-4223334580ca" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/packages/stil_detect/modules/predict.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/stil_detect/stil_detect_service_一个应用案例.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/base_interface/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/base_interface/base_module_infer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/base_interface/base_predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/config/app.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/config/batch_image_schema.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/config/config.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/config/single_image_schema.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/audio_decode/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/base_decoder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/image_decode/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/image_decode/fh_image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/image_decode/fh_image_nvdecode.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/image_decode/libfanvcodec_c.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/decode_tools/video_decode/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/log/service.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/models/deployment.cpython-38-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/modules/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/modules/deployment.cpython-38-x86_64-linux-gnu.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/modules/model_infer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/modules/predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/fastcgi.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/fastcgi.conf.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/fastcgi_params" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/fastcgi_params.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/koi-utf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/koi-win" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/mime.types" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/mime.types.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/nginx.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/nginx.conf.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/scgi_params" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/scgi_params.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/uwsgi_params" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/uwsgi_params.default" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/conf/win-utf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/html/50x.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/html/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/logs/placeholder" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/reload.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/sbin/ai.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/sbin/nginx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/start.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/nginx/stop.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/services/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/services/collector.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/services/handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/services/service.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/transfer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/utils/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/utils/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/utils/logger_modify.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/yolo_detect_service.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/yolo_detect/yolo_detect_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/start.sh" beforeDir="false" afterPath="$PROJECT_DIR$/script/start.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script/start_up.sh" beforeDir="false" afterPath="$PROJECT_DIR$/script/start_up.sh" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2VunFfsc0MXplMuYiVxwYivVShg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "E:/GitHub/service/packages/stil_detect"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\GitHub\service\packages\stil_detect" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="ce706dc2-3bd8-47c0-96c3-4223334580ca" name="变更" comment="" />
+      <created>1695694740553</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1695694740553</updated>
+      <workItem from="1695694754346" duration="1840000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

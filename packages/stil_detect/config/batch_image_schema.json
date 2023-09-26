@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "title": "empty object",
+  "properties": {
+          "noid": {"type": "string", "minLength": 1},
+          "sysid": {"type": "string", "minLength": 1},
+          "images": {"type": "array",
+                    "items": {"type": "object",
+                              "properties": {"image": {"type": "string", "minLength": 1}},
+                              "required": ["image"],
+                              "minItems": 1,
+                              "maxItems": 32
+                    },
+                    "minLength": 1
+          }
+  },
+  "required": ["sysid", "images"]
+}

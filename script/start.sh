@@ -7,7 +7,7 @@ app_run_cmd="python3 face_attribute_servce.py"
 
 # 将模型文件拷贝到公共区域，各个子示例调用相同的模型文件，提升微服务启动的速度
 mv  /home/${app_dir_name}/models /home/models
-sed -i "s#=\s*models#=/home/models#g"  /home/${app_dir_name}/config/app.conf
+sed -i "s#=\s*models#=/home/models#g"  /home/${app_dir_name}/config/config.yaml
 
 # 将微服务的配置参数以环境变量的配置参数形式映射进去
 for k in $( seq 1 ${INSTANCE_NUM} )
@@ -16,7 +16,7 @@ do
   cp -r /home/${app_dir_name}/ /home/${app_dir_name}$k
 
   # 修改各个服务配置
-  CONFIG_FILE=/home/${app_dir_name}$k/config/app.conf
+  CONFIG_FILE=/home/${app_dir_name}$k/config/config.yaml
   portk=$((${SERVER_PORT} + $k))
   sed -i "s#device_id\s*=.*#device_id=${GPU_IDS}#g" ${CONFIG_FILE}
   sed -i "s#server_port\s*=.*#server_port=${portk}#g" ${CONFIG_FILE}

@@ -1,8 +1,0 @@
-2023-04-12 08:44:24,508 | root | aiservice.py:[25] | [INFO] | service start
-2023-04-12 08:44:24,509 | root | predictor.py:[34] | [INFO] | Predictor init
-2023-04-12 08:44:32,957 | root | predict.py:[44] | [INFO] | load model success!
-2023-04-12 08:44:32,961 | root | aiservice.py:[47] | [INFO] | init finished.
-2023-04-12 08:44:42,222 | root | aiservice.py:[25] | [INFO] | service start
-2023-04-12 08:44:42,223 | root | predictor.py:[34] | [INFO] | Predictor init
-2023-04-12 08:44:50,089 | root | predict.py:[44] | [INFO] | load model success!
-2023-04-12 08:44:50,093 | root | aiservice.py:[47] | [INFO] | init finished.
